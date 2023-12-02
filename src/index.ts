@@ -24,7 +24,7 @@ app.get("/todos", async (c) => {
  * create todo
  */
 app.post("/todos", async (c) => {
-  const params = await c.req.json<{ title: string }>();
+  const params = await c.req.json<typeof todos.$inferSelect>();
   const db = drizzle(c.env.DB);
   const result = await db
     .insert(todos)
@@ -43,10 +43,7 @@ app.put("/todos/:id", async (c) => {
     return c.json({ error: "invalid ID" }, 400);
   }
 
-  const params = await c.req.json<{
-    title: string;
-    status: (typeof todos.status.enumValues)[number];
-  }>();
+  const params = await c.req.json<typeof todos.$inferSelect>();
   const db = drizzle(c.env.DB);
   const result = await db
     .update(todos)

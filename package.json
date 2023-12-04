@@ -4,6 +4,7 @@
     "deploy": "wrangler deploy --minify src/index.ts"
   },
   "dependencies": {
+    "@hono/graphql-server": "^0.4.1",
     "drizzle-orm": "^0.29.1",
     "hono": "^3.10.2"
   },

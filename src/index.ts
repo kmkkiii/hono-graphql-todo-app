@@ -2,6 +2,8 @@ import { Hono } from "hono";
 import { drizzle } from "drizzle-orm/d1";
 import { todos } from "./schema";
 import { eq } from "drizzle-orm";
+import { graphqlServer } from "@hono/graphql-server";
+import { buildSchema } from "graphql";
 
 type Bindings = {
   DB: D1Database;
@@ -26,10 +28,7 @@ app.get("/todos", async (c) => {
 app.post("/todos", async (c) => {
   const params = await c.req.json<typeof todos.$inferSelect>();
   const db = drizzle(c.env.DB);
-  const result = await db
-    .insert(todos)
-    .values({ title: params.title })
-    .execute();
+  const result = await db.insert(todos).values({ title: params.title });
   return c.json(result);
 });
 
@@ -66,5 +65,22 @@ app.delete("/todos/:id", async (c) => {
   const result = await db.delete(todos).where(eq(todos.id, id));
   return c.json(result);
 });
+
+const schema = buildSchema(`
+  type Query {
+    hello: String
+  }
+`);
+
+const rootResolver = () => {
+  return {
+    hello: () => "Hello Hono!",
+  };
+};
+
+/**
+ * graphql
+ */
+app.use("/graphql", graphqlServer({ schema, rootResolver }));
 
 export default app;
